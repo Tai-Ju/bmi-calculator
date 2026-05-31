@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BMI 計算機 · 學習歷程</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #f7f9f7; --surface: #fff; --surface2: #f0f4f0;
+    --border: #dde5dd; --accent: #2d7d46; --accent-light: #e4f5e9;
+    --text: #1a2d1e; --muted: #6b7d6e;
+    --blue: #1a5fa8; --blue-light: #e8f0fb;
+    --yellow: #a07800; --yellow-light: #fdf6e0;
+    --red: #b83232; --red-light: #fdeaea;
+    --sans: 'Noto Sans TC', sans-serif; --mono: 'JetBrains Mono', monospace;
+  }
+  html { scroll-behavior: smooth; }
+  body { font-family: var(--sans); background: var(--bg); color: var(--text); font-weight: 300; line-height: 1.75; }
+
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 0.85rem 2.5rem;
+    background: rgba(247,249,247,0.92); backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-logo { font-family: var(--mono); font-size: 12px; color: var(--accent); font-weight: 500; letter-spacing: 0.06em; }
+  .nav-links { display: flex; gap: 2rem; list-style: none; }
+  .nav-links a { font-family: var(--mono); font-size: 11px; color: var(--muted); text-decoration: none; letter-spacing: 0.1em; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--accent); }
+
+  .hero { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; padding: 7rem 2.5rem 5rem; max-width: 960px; margin: 0 auto; }
+  .hero-eyebrow { display: flex; align-items: center; gap: 10px; margin-bottom: 2rem; opacity: 0; animation: up 0.6s 0.2s forwards; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+  .hero-eyebrow span { font-family: var(--mono); font-size: 11px; color: var(--accent); letter-spacing: 0.18em; text-transform: uppercase; }
+  .hero h1 { font-size: clamp(2.4rem, 6vw, 4.5rem); font-weight: 500; line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 1.5rem; opacity: 0; animation: up 0.6s 0.35s forwards; }
+  .hero h1 .en { display: block; font-size: 0.48em; font-weight: 300; color: var(--muted); margin-top: 0.5rem; }
+  .hero-desc { max-width: 520px; font-size: 1rem; color: var(--muted); margin-bottom: 2.5rem; opacity: 0; animation: up 0.6s 0.5s forwards; }
+  .hero-btns { display: flex; gap: 12px; flex-wrap: wrap; opacity: 0; animation: up 0.6s 0.65s forwards; }
+  .btn-primary { font-family: var(--mono); font-size: 11px; color: white; text-decoration: none; background: var(--accent); padding: 8px 18px; border-radius: 3px; letter-spacing: 0.06em; transition: background 0.2s; }
+  .btn-primary:hover { background: #245f37; }
+  .btn-outline { font-family: var(--mono); font-size: 11px; color: var(--accent); text-decoration: none; border: 1px solid var(--accent); padding: 8px 18px; border-radius: 3px; letter-spacing: 0.06em; transition: all 0.2s; }
+  .btn-outline:hover { background: var(--accent); color: white; }
+
+  section { max-width: 960px; margin: 0 auto; padding: 5rem 2.5rem; }
+  hr { border: none; border-top: 1px solid var(--border); }
+  .sec-label { font-family: var(--mono); font-size: 10px; color: var(--accent); letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 0.5rem; }
+  .sec-title { font-size: 1.8rem; font-weight: 500; letter-spacing: -0.02em; margin-bottom: 2.5rem; padding-bottom: 1.25rem; border-bottom: 1px solid var(--border); }
+
+  /* JOURNEY */
+  .journey { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 2rem; }
+  .journey-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 2rem; position: relative; overflow: hidden; }
+  .journey-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--accent); }
+  .journey-card.advanced::before { background: linear-gradient(90deg, var(--accent), #1a5fa8); }
+  .journey-num { font-family: var(--mono); font-size: 11px; color: var(--accent); letter-spacing: 0.15em; margin-bottom: 8px; }
+  .journey-title { font-size: 18px; font-weight: 500; margin-bottom: 4px; }
+  .journey-sub { font-size: 13px; color: var(--muted); margin-bottom: 1.25rem; }
+  .journey-features { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+  .journey-features li { font-size: 13px; color: var(--muted); display: flex; align-items: center; gap: 8px; }
+  .journey-features li::before { content: '—'; color: var(--accent); font-family: var(--mono); flex-shrink: 0; }
+
+  /* CALCULATOR */
+  .calc-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 2rem; max-width: 520px; }
+  .unit-btns { display: flex; gap: 8px; margin-bottom: 1.5rem; }
+  .unit-btn { flex: 1; padding: 9px; font-family: var(--mono); font-size: 12px; border-radius: 6px; cursor: pointer; transition: all 0.2s; border: 2px solid var(--border); background: var(--surface); color: var(--muted); }
+  .unit-btn.active { border-color: var(--accent); background: var(--accent); color: white; }
+  .field-label { font-family: var(--mono); font-size: 11px; color: var(--muted); letter-spacing: 0.1em; display: block; margin-bottom: 6px; }
+  .field-wrap { margin-bottom: 1rem; }
+  input[type=number] { width: 100%; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 15px; font-family: var(--sans); outline: none; background: var(--surface); color: var(--text); transition: border 0.2s; }
+  input[type=number]:focus { border-color: var(--accent); }
+  .calc-btn { width: 100%; padding: 12px; background: var(--accent); color: white; border: none; border-radius: 8px; font-size: 14px; font-family: var(--sans); cursor: pointer; transition: background 0.2s; margin-top: 0.5rem; }
+  .calc-btn:hover { background: #245f37; }
+  .result-box { display: none; margin-top: 1.5rem; padding: 1.25rem; border-radius: 8px; border: 1.5px solid var(--border); }
+  .result-main { display: flex; align-items: baseline; gap: 12px; margin-bottom: 8px; }
+  .result-bmi { font-family: var(--mono); font-size: 36px; font-weight: 500; }
+  .result-cat { font-size: 18px; font-weight: 500; }
+  .result-advice { font-size: 13px; color: var(--muted); }
+  .error-box { display: none; margin-top: 1rem; font-size: 13px; color: var(--red); font-family: var(--mono); }
+
+  /* BMI TABLE */
+  .bmi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 2rem; }
+  .bmi-cell { background: var(--surface); padding: 1.25rem; text-align: center; }
+  .bmi-cell.c-blue { background: var(--blue-light); }
+  .bmi-cell.c-green { background: var(--accent-light); }
+  .bmi-cell.c-yellow { background: var(--yellow-light); }
+  .bmi-cell.c-red { background: var(--red-light); }
+  .bmi-range { font-family: var(--mono); font-size: 15px; font-weight: 500; margin-bottom: 6px; }
+  .c-blue .bmi-range { color: var(--blue); } .c-green .bmi-range { color: var(--accent); }
+  .c-yellow .bmi-range { color: var(--yellow); } .c-red .bmi-range { color: var(--red); }
+  .bmi-cat { font-size: 13px; font-weight: 500; margin-bottom: 6px; }
+  .bmi-advice-t { font-size: 11px; color: var(--muted); line-height: 1.6; }
+
+  /* COMPARE */
+  .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .compare-cell { background: var(--surface); padding: 1rem 1.25rem; font-size: 13px; }
+  .compare-cell.header { background: var(--surface2); font-family: var(--mono); font-size: 11px; color: var(--muted); letter-spacing: 0.1em; }
+  .compare-cell.accent { color: var(--accent); font-weight: 500; }
+
+  /* CODE */
+  .code-block { background: #f0f4f0; border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 4px; padding: 1.25rem 1.5rem; font-family: var(--mono); font-size: 12px; color: #2a3d2e; overflow-x: auto; line-height: 1.8; margin-bottom: 1.5rem; }
+  .code-block .cmt { color: #7a9e7e; } .code-block .kw { color: var(--accent); font-weight: 500; } .code-block .str { color: var(--blue); }
+
+  footer { border-top: 1px solid var(--border); padding: 2rem 2.5rem; max-width: 960px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+  footer p { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+
+  @keyframes up { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+  @media (max-width: 640px) {
+    .journey, .compare-grid { grid-template-columns: 1fr; }
+    .bmi-grid { grid-template-columns: repeat(2, 1fr); }
+    nav { padding: 0.85rem 1.25rem; }
+    .hero, section { padding-left: 1.25rem; padding-right: 1.25rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <span class="nav-logo">BMI_CALCULATOR /</span>
+  <ul class="nav-links">
+    <li><a href="#journey">學習歷程</a></li>
+    <li><a href="#calc">計算機</a></li>
+    <li><a href="#compare">對比</a></li>
+  </ul>
+</nav>
+
+<div class="hero">
+  <div class="hero-eyebrow"><span class="dot"></span><span>高等程式語言與軟體設計 · 國立臺北護理健康大學</span></div>
+  <h1>BMI 計算機<span class="en">CLI → FastAPI · 學習歷程</span></h1>
+  <p class="hero-desc">從零套件的 Python CLI 腳本，到分層架構的 FastAPI 後端系統，展示一個功能從簡單到完整的演進過程。</p>
+  <div class="hero-btns">
+    <a class="btn-primary" href="https://github.com/Tai-Ju/bmi-calculator">VIEW ON GITHUB →</a>
+    <a class="btn-outline" href="https://github.com/Tai-Ju/bmi-calculator/blob/main/README.md">README →</a>
+  </div>
+</div>
+
+<hr>
+
+<!-- 學習歷程 -->
+<section id="journey">
+  <p class="sec-label">01 / LEARNING JOURNEY</p>
+  <h2 class="sec-title">學習歷程</h2>
+  <div class="journey">
+    <div class="journey-card">
+      <div class="journey-num">01 / CLI</div>
+      <div class="journey-title">純 Python CLI</div>
+      <div class="journey-sub">入門 · 無需任何套件</div>
+      <ul class="journey-features">
+        <li>公制 / 英制雙單位支援</li>
+        <li>手動輸入驗證（if/else）</li>
+        <li>BMI 分類與健康建議</li>
+        <li>AI Agent 根據 spec.txt 自動產生</li>
+        <li>單一檔案，邏輯清晰易讀</li>
+      </ul>
+    </div>
+    <div class="journey-card advanced">
+      <div class="journey-num">02 / FASTAPI</div>
+      <div class="journey-title">FastAPI 後端系統</div>
+      <div class="journey-sub">進階 · 分層架構 · REST API</div>
+      <ul class="journey-features">
+        <li>POST /calculate REST API 端點</li>
+        <li>Pydantic 自動資料驗證</li>
+        <li>自動偵測身高單位（cm / m）</li>
+        <li>api / models / services 分層設計</li>
+        <li>完整單元測試（test_api / test_service）</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<hr>
+
+<!-- 計算機 -->
+<section id="calc">
+  <p class="sec-label">02 / CALCULATOR</p>
+  <h2 class="sec-title">立即計算 BMI</h2>
+  <div class="calc-wrap">
+    <div class="unit-btns">
+      <button class="unit-btn active" id="btn-metric" onclick="setUnit('metric')">公制 kg / m</button>
+      <button class="unit-btn" id="btn-imperial" onclick="setUnit('imperial')">英制 lb / in</button>
+    </div>
+    <div class="field-wrap">
+      <label class="field-label">WEIGHT <span id="w-unit">kg</span></label>
+      <input id="weight" type="number" min="0" step="0.1" placeholder="例：70">
+    </div>
+    <div id="height-metric" class="field-wrap">
+      <label class="field-label">HEIGHT m</label>
+      <input id="height-m" type="number" min="0" step="0.01" placeholder="例：1.70">
+    </div>
+    <div id="height-imperial" style="display:none;" class="field-wrap">
+      <label class="field-label">HEIGHT ft / in</label>
+      <div style="display:flex;gap:8px;">
+        <input id="height-ft" type="number" min="0" step="1" placeholder="英呎" style="width:50%;">
+        <input id="height-in" type="number" min="0" step="1" placeholder="英吋" style="width:50%;">
+      </div>
+    </div>
+    <button class="calc-btn" onclick="calcBMI()">計算 BMI</button>
+    <div class="result-box" id="result">
+      <div class="result-main">
+        <span class="result-bmi" id="bmi-val"></span>
+        <span class="result-cat" id="bmi-cat"></span>
+      </div>
+      <div class="result-advice" id="bmi-advice"></div>
+    </div>
+    <div class="error-box" id="error"></div>
+  </div>
+
+  <br>
+
+  <!-- BMI 分類 -->
+  <div class="bmi-grid">
+    <div class="bmi-cell c-blue">
+      <div class="bmi-range">&lt; 18.5</div>
+      <div class="bmi-cat">體重過輕</div>
+      <div class="bmi-advice-t">攝取充足營養，諮詢營養師</div>
+    </div>
+    <div class="bmi-cell c-green">
+      <div class="bmi-range">18.5–24.9</div>
+      <div class="bmi-cat">正常範圍</div>
+      <div class="bmi-advice-t">繼續保持健康飲食與運動</div>
+    </div>
+    <div class="bmi-cell c-yellow">
+      <div class="bmi-range">25.0–29.9</div>
+      <div class="bmi-cat">過重</div>
+      <div class="bmi-advice-t">調整飲食，增加有氧運動</div>
+    </div>
+    <div class="bmi-cell c-red">
+      <div class="bmi-range">≥ 30.0</div>
+      <div class="bmi-cat">肥胖</div>
+      <div class="bmi-advice-t">諮詢醫師，制定減重計畫</div>
+    </div>
+  </div>
+</section>
+
+<hr>
+
+<!-- 對比 -->
+<section id="compare">
+  <p class="sec-label">03 / COMPARISON</p>
+  <h2 class="sec-title">CLI vs FastAPI 對比</h2>
+
+  <div class="compare-grid">
+    <div class="compare-cell header">項目</div>
+    <div class="compare-cell header">01 CLI → 02 FastAPI</div>
+    <div class="compare-cell">類型</div>
+    <div class="compare-cell">命令列腳本 → REST API 後端</div>
+    <div class="compare-cell">套件依賴</div>
+    <div class="compare-cell">無 → FastAPI + Pydantic + Uvicorn</div>
+    <div class="compare-cell">輸入驗證</div>
+    <div class="compare-cell">手動 if/else → Pydantic 自動驗證</div>
+    <div class="compare-cell">架構</div>
+    <div class="compare-cell">單一檔案 → api / models / services 分層</div>
+    <div class="compare-cell">測試</div>
+    <div class="compare-cell">無 → test_api / test_cli / test_service</div>
+    <div class="compare-cell">開發方式</div>
+    <div class="compare-cell">AI Agent 生成 → OpenCode 輔助開發</div>
+  </div>
+
+  <br>
+
+  <div class="code-block">
+<span class="cmt"># 01 CLI — 執行</span>
+<span class="kw">python</span> 01_cli/bmi_calculator.py
+
+<span class="cmt"># 02 FastAPI — 啟動 API 伺服器</span>
+<span class="kw">pip</span> install fastapi uvicorn pydantic
+<span class="kw">uvicorn</span> src.api.main:app --reload
+
+<span class="cmt"># API 請求範例</span>
+<span class="kw">curl</span> -X POST <span class="str">http://localhost:8000/calculate</span> \
+  -H <span class="str">"Content-Type: application/json"</span> \
+  -d <span class="str">'{"height": 170, "weight": 65}'</span>
+  </div>
+</section>
+
+<hr>
+
+<footer>
+  <p>學號 142216015 · 高等程式語言與軟體設計 · 2026</p>
+  <a class="btn-outline" href="https://github.com/Tai-Ju/bmi-calculator">VIEW ON GITHUB →</a>
+</footer>
+
+<script>
+let unit = 'metric';
+function setUnit(u) {
+  unit = u;
+  document.getElementById('height-metric').style.display   = u === 'metric' ? 'block' : 'none';
+  document.getElementById('height-imperial').style.display = u === 'imperial' ? 'block' : 'none';
+  document.getElementById('w-unit').textContent = u === 'metric' ? 'kg' : 'lb';
+  document.getElementById('btn-metric').className   = 'unit-btn' + (u === 'metric' ? ' active' : '');
+  document.getElementById('btn-imperial').className = 'unit-btn' + (u === 'imperial' ? ' active' : '');
+  document.getElementById('result').style.display = 'none';
+  document.getElementById('error').style.display  = 'none';
+}
+function showError(msg) {
+  document.getElementById('error').textContent = '⚠ ' + msg;
+  document.getElementById('error').style.display = 'block';
+  document.getElementById('result').style.display = 'none';
+}
+function calcBMI() {
+  document.getElementById('error').style.display  = 'none';
+  document.getElementById('result').style.display = 'none';
+  const w = parseFloat(document.getElementById('weight').value);
+  if (isNaN(w) || w <= 0) { showError('體重必須大於 0'); return; }
+  let bmi;
+  if (unit === 'metric') {
+    const h = parseFloat(document.getElementById('height-m').value);
+    if (isNaN(h) || h <= 0) { showError('身高必須大於 0'); return; }
+    bmi = w / (h * h);
+  } else {
+    const ft = parseFloat(document.getElementById('height-ft').value) || 0;
+    const inch = parseFloat(document.getElementById('height-in').value) || 0;
+    const totalIn = ft * 12 + inch;
+    if (totalIn <= 0) { showError('身高必須大於 0'); return; }
+    bmi = 703 * w / (totalIn * totalIn);
+  }
+  bmi = Math.round(bmi * 10) / 10;
+  if (bmi >= 60 || bmi < 10) { showError('數值異常，請重新確認身高體重'); return; }
+  let cat, advice, bg, color;
+  if (bmi < 18.5)      { cat = '體重過輕'; advice = '建議攝取充足營養，並諮詢營養師。';         bg = 'var(--blue-light)';   color = 'var(--blue)'; }
+  else if (bmi < 25)   { cat = '正常範圍'; advice = '非常棒！請繼續保持健康的飲食與運動。';     bg = 'var(--accent-light)'; color = 'var(--accent)'; }
+  else if (bmi < 30)   { cat = '過重';     advice = '建議開始調整飲食，並增加有氧運動。';       bg = 'var(--yellow-light)'; color = 'var(--yellow)'; }
+  else                 { cat = '肥胖';     advice = '建議諮詢醫師或健身專家，制定減重計畫。';   bg = 'var(--red-light)';    color = 'var(--red)'; }
+  const r = document.getElementById('result');
+  r.style.background = bg; r.style.borderColor = color; r.style.display = 'block';
+  document.getElementById('bmi-val').textContent  = bmi;
+  document.getElementById('bmi-val').style.color  = color;
+  document.getElementById('bmi-cat').textContent  = cat;
+  document.getElementById('bmi-cat').style.color  = color;
+  document.getElementById('bmi-advice').textContent = advice;
+}
+</script>
+</body>
+</html>

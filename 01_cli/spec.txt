@@ -1,0 +1,47 @@
+# BMI 計算機設計方案 (Technical Specification for AI Agents)
+
+## 1. 目標 (Objective)
+建立一個具備輸入驗證、單位轉換與結果分類功能的 BMI（Body Mass Index）計算器。
+
+## 2. 核心邏輯 (Core Logic)
+
+### 2.1 數學公式
+Agent 應根據用戶選擇的單位系統採用對應公式：
+- **公制 (Metric System):** BMI = weight (kg) / height (m)^2
+- **英制 (Imperial System):** BMI = 703 × weight (lb) / height (in)^2
+
+### 2.2 單位轉換規則
+- 1 公尺 (m) = 100 公分 (cm)
+- 1 英呎 (ft) = 12 英吋 (in)
+
+## 3. 輸入規格 (Input Requirements)
+
+| 參數名稱    | 類型   | 說明            | 驗證規則              |
+| :---------- | :----- | :-------------- | :-------------------- |
+| weight      | Float  | 體重            | 必須 > 0              |
+| height      | Float  | 身高            | 必須 > 0              |
+| unit_system | String | 'metric' 或 'imperial' | 預設為 'metric' |
+
+## 4. 輸出與狀態分類 (Classification)
+計算結果應四捨五入至小數點後 **1 位**。
+
+| BMI 指數 (Range) | 分類 (Category) | 建議 (Advice)                          | 顏色提示 (UI/UX) |
+| :--------------- | :-------------- | :------------------------------------- | :--------------- |
+| < 18.5           | 體重過輕        | 建議攝取充足營養，並諮詢營養師。       | 藍色 / Blue      |
+| 18.5 - 24.9      | 正常範圍        | 非常棒！請繼續保持健康的飲食與運動。   | 綠色 / Green     |
+| 25.0 - 29.9      | 過重            | 建議開始調整飲食，並增加有氧運動。     | 黃色 / Yellow    |
+| ≥ 30.0           | 肥胖            | 建議諮詢醫師或健身專家，制定減重計畫。 | 紅色 / Red       |
+
+## 5. 異常處理 (Error Handling)
+- **非數值輸入：** 提示「輸入格式錯誤，請輸入數字」。
+- **極端數值：** 若 BMI > 60 或 < 10，應提示「數值異常，請重新確認身高體重」。
+- **除以零：** 確保身高不為零。
+
+## 6. 建議功能模組 (Recommended Modules)
+1. `validate_input()`: 負責過濾非法字元與範圍檢查。
+2. `calculate_bmi()`: 核心計算邏輯。
+3. `get_status()`: 根據指數回傳分類與建議文字。
+4. `main_interface()`: 處理用戶互動流（CLI 或 GUI）。
+
+---
+*Generated for AI Agent Implementation*
